@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Инструменты качества
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Окружение и данные
+.env
+*.db
+*.sqlite3
+out/
+reports_output/
+
+# IDE
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "compose-chaos"
+version = "0.1.0"
+description = "Инструмент хаос-инженерии для локальных сред на основе docker-compose"
+readme = "README.md"
+requires-python = ">=3.12"  # целевая версия разработки — 3.14
+dependencies = [
+    "docker>=7.1",                # официальный Docker SDK (Engine API через unix-socket)
+    "pydantic>=2.9",              # валидация DSL-сценариев, автогенерация JSON Schema
+    "pydantic-settings>=2.6",     # конфигурация через переменные окружения
+    "PyYAML>=6.0",                # парсинг compose-файлов и сценариев
+    "SQLAlchemy[asyncio]>=2.0.36",# async-доступ к БД
+    "asyncpg>=0.30",              # драйвер PostgreSQL
+    "aiosqlite>=0.20",            # профиль SQLite (минимальная установка)
+    "alembic>=1.14",              # миграции схемы
+    "fastapi>=0.115",             # HTTP API + WebSocket
+    "uvicorn[standard]>=0.32",    # ASGI-сервер
+    "httpx>=0.28",                # async HTTP-пробы
+    "Jinja2>=3.1",                # HTML-отчёты
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "coverage>=7.6",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "pre-commit>=4.0",
+    "testcontainers>=4.8",        # интеграционные тесты с реальным Docker
+]
+
+[project.scripts]
+compose-chaos = "compose_chaos.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/compose_chaos"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true

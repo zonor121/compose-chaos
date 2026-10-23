@@ -1,0 +1,85 @@
+# Демо-приложение — полигон атак (топология из главы 3 ВКР:
+# nginx → frontend → api → postgres/redis/worker).
+#
+# api и frontend — заглушки на nginx:alpine: полигон поднимается сразу,
+# атаки имеют живые цели. Замените api на своё FastAPI-приложение (Этап 2+).
+# Sidecar-атаки (netem) будут запускаться с network_mode: service:<target> —
+# поэтому сети объявлены явно.
+
+name: chaos-demo
+
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  api:
+    image: nginx:alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U demo"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  worker:
+    image: python:3.14-slim
+    command: ["python", "-c", "import time; time.sleep(3600)"]  # заглушка
+    depends_on:
+      - redis
+
+  # БД самого инструмента (local-first; можно вынести в отдельный compose)
+  chaos-db:
+    image: postgres:16-alpine
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: chaos
+      POSTGRES_PASSWORD: chaos
+      POSTGRES_DB: chaos
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chaos"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  default:
+    name: chaos-demo

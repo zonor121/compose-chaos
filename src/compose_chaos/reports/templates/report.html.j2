@@ -1,0 +1,44 @@
+{# Статический HTML-отчёт: открывается без сервера, данные — inline JSON.
+   TODO(Этап 4): заполнить контекст (run, attacks, incidents, series),
+   графики Chart.js по canvas-блокам ниже. #}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Отчёт прогона {{ run.name }} #{{ run.id }}</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem auto; max-width: 960px; color: #1f2937; }
+    h1 { font-size: 1.4rem; } h2 { font-size: 1.1rem; margin-top: 2rem; }
+    table { border-collapse: collapse; width: 100%; }
+    td, th { border: 1px solid #e5e7eb; padding: 6px 10px; text-align: left; }
+    .kpi { display: flex; gap: 1rem; } .kpi div { background: #f8fafc; padding: 1rem; border-radius: 8px; flex: 1; }
+  </style>
+</head>
+<body>
+  <h1>Отчёт прогона «{{ run.name }}» #{{ run.id }}</h1>
+  <div class="kpi">
+    <div><strong>{{ kpi.mttd_ms }}</strong> MTTD</div>
+    <div><strong>{{ kpi.mttr_ms }}</strong> MTTR</div>
+    <div><strong>{{ kpi.survived }}</strong> устойчивость</div>
+  </div>
+
+  <h2>Таймлайн атак</h2>
+  <table>
+    <tr><th>Атака</th><th>Цель</th><th>Внедрена</th><th>Откат</th></tr>
+    {% for a in attacks %}
+    <tr><td>{{ a.name }}</td><td>{{ a.target }}</td><td>{{ a.injected_at }}</td><td>{{ a.rolled_back_at }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h2>Латентность проб</h2>
+  <canvas id="latency"></canvas>
+  <h2>Потребление ресурсов</h2>
+  <canvas id="resources"></canvas>
+
+  <script>
+    // TODO(Этап 4): const DATA = {{ series_json }};
+    // новые Chart(document.getElementById('latency'), {...})
+  </script>
+</body>
+</html>

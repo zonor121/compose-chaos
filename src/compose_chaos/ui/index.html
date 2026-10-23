@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>compose-chaos — UI v1</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Граф топологии: Cytoscape.js + раскладка Dagre (метаданные compose-файла:
+       depends_on-рёбра, кластеры по сетям; БЕЗ перехвата трафика) -->
+  <script src="https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"></script>
+  <script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+  <script src="https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"></script>
+</head>
+<body>
+  <header>
+    <h1>compose-chaos</h1>
+    <div id="run-status">прогон: —</div>
+  </header>
+
+  <main>
+    <div id="graph"></div>
+    <aside id="panel">
+      <h2>Сценарий</h2>
+      <!-- TODO(Этап 4): список атак текущего сценария, кнопки запуска/стопа -->
+      <p class="hint">Заглушка: граф построен по демо-топологии demoapp/docker-compose.yml.</p>
+    </aside>
+  </main>
+
+  <script type="module" src="graph.js"></script>
+</body>
+</html>

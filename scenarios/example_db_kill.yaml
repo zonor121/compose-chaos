@@ -1,0 +1,39 @@
+# Пример сценария хаоса: отказ PostgreSQL под нагрузкой.
+# Валидация: compose-chaos validate scenarios/example_db_kill.yaml
+schema_version: 1
+
+name: kill-postgres
+description: >
+  Демонстрация полного цикла: проверка устойчивого состояния, kill postgres,
+  наблюдение деградации API, откат и контроль восстановления.
+
+compose_file: ../demoapp/docker-compose.yml
+
+# Устойчивое состояние до атаки (и критерий после отката)
+steady_state:
+  - name: api-healthy
+    url: http://localhost:8080/api/health
+    expect:
+      status: 200
+      max_latency_ms: 300
+    interval_sec: 2
+
+attacks:
+  - name: kill-postgres
+    type: container.kill
+    target: postgres
+    params:
+      signal: SIGKILL
+    duration_sec: 30
+
+monitoring:
+  stats_interval_sec: 5
+  probes:
+    - name: api-health
+      url: http://localhost:8080/api/health
+      expect:
+        status: 200
+      interval_sec: 2
+
+rollback_on_breach: true
+total_duration_sec: 120
